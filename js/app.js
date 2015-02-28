@@ -30,15 +30,26 @@ Enemy.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
-    this.sprite = 'images/enemy-bug.png';
+    this.sprite = 'images/char-boy.png';
     this.x = 200;
-    this.y = 200;
+    this.y = 240;
+    //this.dx = 0;
+    //this.dy = 0;
 }
 
-Player.prototype.update = function() {}
-Player.prototype.render = function() {}
+Player.prototype.update = function() {
+    //this.x += this.dx;
+    //this.y += this.dy;
+}
+Player.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
 Player.prototype.handleInput = function(key) {
     console.log("Go " + key);
+    if (key == "left") { this.x += -101; }
+    if (key == "right") { this.x += 101; }
+    if (key == "up") { this.y += -83; }
+    if (key == "down") { this.y += 83; }
 }
 
 // Now instantiate your objects.
