@@ -1,3 +1,12 @@
+                      /////////////////
+///////////////////// ENEMY-BUG STUFF ////////////////////////////
+                    /////////////////
+
+
+var BLOCK = {width : 101, height : 83};
+var BUG_OFFSET = 60;
+
+
 // Enemies our player must avoid
 var Enemy = function(row, speed) {
     // Variables applied to each of our instances go here,
@@ -6,8 +15,8 @@ var Enemy = function(row, speed) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
-    this.x = -100;
-    this.y = 60 + 83 * row;
+    this.x = -BLOCK.width; // off-screen start position for bugs
+    this.y = BUG_OFFSET + BLOCK.height * row; // assign row to y; never changes
     this.speed = speed;
 }
 
@@ -18,7 +27,7 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
 
-    this.x < 500 ? this.x += this.speed * dt : this.x = -100;
+    this.x < 500 ? this.x += this.speed * dt : this.x = -BLOCK.width;
 }
 
 // Draw the enemy on the screen, required method for game
@@ -26,37 +35,71 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
+                      //////////////
+///////////////////// PLAYER STUFF ////////////////////////////
+                    //////////////
+
+// TODO - add player points
+// TODO - add points print out in water
+// TODO - when get to water gems appear; return to get them for big points
+// TODO - when all gems collected; key appears
+// TODO - pickup key and return to water = WIN!
+
+// TODO - add player2 with input from keys ASDW
+
+// var bounds = {
+    //     'ULlimit': {'x':-2,'y':-9},
+    //     'URlimit': {'x':402,'y':-9},
+    //     'LLlimit': {'x':-2,'y':406},
+    //     'LRlimit': {'x':402,'y':406}
+    // }
+
+// Position constants
+
+var LIMIT = {
+    'left' : -2,
+    'right' : 402,
+    'up' : -9,
+    'down' : 406
+}
+
+var START = {
+    'x' : 200,
+    'y' : 406
+}
+
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
     this.sprite = 'images/char-boy.png';
-    this.x = 200;
-    this.y = 240;
-    //this.dx = 0;
-    //this.dy = 0;
+    this.x = START.x;
+    this.y = START.y;
 }
 
 Player.prototype.update = function() {
-    //this.x += this.dx;
-    //this.y += this.dy;
+    // want to check for collision/death; picking up gems
+
 }
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 Player.prototype.handleInput = function(key) {
-    console.log("Go " + key);
-    if (key == "left") { this.x += -101; }
-    if (key == "right") { this.x += 101; }
-    if (key == "up") { this.y += -83; }
-    if (key == "down") { this.y += 83; }
+    //console.log("Go " + key);
+    // check screen limits of player, then move or not
+
+    if (key == "leftward" && this.x > LIMIT.left) { this.x -= BLOCK.width; }
+    if (key == "rightward" && this.x < LIMIT.right) { this.x += BLOCK.width; }
+    if (key == "upward" && this.y > LIMIT.up) { this.y -= BLOCK.height; }
+    if (key == "downward" && this.y < LIMIT.down) { this.y += BLOCK.height; }
+    //console.log('new X= ' + this.x + ' new Y= ' + this.y)
 }
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 var allEnemies = [];
-var player = new Player();
+var player1 = new Player();
 
 allEnemies[0] = new Enemy(0,16); // row number, velocity
 allEnemies[1] = new Enemy(1,50); // row number, velocity
@@ -71,11 +114,11 @@ allEnemies[7] = new Enemy(4,4);
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down'
+        37: 'leftward',
+        38: 'upward',
+        39: 'rightward',
+        40: 'downward'
     };
 
-    player.handleInput(allowedKeys[e.keyCode]);
+    player1.handleInput(allowedKeys[e.keyCode]);
 });
