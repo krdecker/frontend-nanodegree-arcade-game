@@ -2,6 +2,10 @@
 /////////////////////// UTILS /////////////////
                       ///////
 
+// this is not working - inverts only the canvas bg
+
+// probably cuz the block images are cached and re-painted so fast
+// could try inverting them in their cache
 
 function invertColours() {
     //var canvas = document.querySelector('canvas');
@@ -25,7 +29,7 @@ var deathHonk = function() {
 
     //};
     invertColours();
-    //invertColours();
+    invertColours();
 
 }
 
@@ -72,8 +76,8 @@ Enemy.prototype.render = function() {
 ///////////////////// PLAYER STUFF ////////////////////////////
                     //////////////
 
-// TODO - add player points
-// TODO - add points print out in water
+// TODO - add player points - DONE
+// TODO - add points print out in water - DONE
 // TODO - when get to water gems appear; return to get them for big points
 // TODO - when all gems collected; key appears
 // TODO - pickup key and return to water = WIN!
@@ -113,7 +117,7 @@ var Player = function() {
     this.x = START.x;
     this.y = START.y;
     this.score = 0;
-    this.water = 0;
+    this.wet = 0;
 }
 
 Player.prototype.update = function() {
@@ -135,16 +139,20 @@ Player.prototype.update = function() {
     //console.log('collision= ' + collision);
 
     if(collision) {
-        deathHonk();
+    //    deathHonk(); // not working
         this.x = START.x;
         this.y = START.y;
         this.score = 0;
-        this.water = 0;
+        this.wet = 0;
     }
 
-    if ((this.y == -9) && (this.water == 0)) {
+    if ((this.y == -9) && (this.wet == 0)) {
         this.score += 500;
-        this.water = 1;
+        this.wet = 1;
+    }
+
+    if (this.wet) {
+        console.log("will now display prizes");
     }
 
 }
@@ -178,20 +186,46 @@ Player.prototype.handleInput = function(key) {
     }
 }
 
+                       ////////
+////////////////////// PRIZES //////////////////////////////
+                     ////////
+
+// TODO - make prize objects and their methods
+// TODO - then implement collection by player
+// gems will all appear after first dive into water
+// when all gems are collected (or a certain number of points
+// achieved) the key appears - collect the key and return it
+// to the water for the WIN!
+
+
+var Prize = function(){}
+Prize.prototype.update = function() {}
+Prize.prototype.render = function() {}
+
+
+                       /////
+////////////////////// GO! ////////////////////////////
+                      ////
+
+
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 var allEnemies = [];
 var player1 = new Player();
+var allPrizes = [];
+
 
 allEnemies[0] = new Enemy(0,16); // row number, velocity
 allEnemies[1] = new Enemy(1,50); // row number, velocity
-allEnemies[2] = new Enemy(2,32); // row number, velocity
-allEnemies[3] = new Enemy(3,10); // row number, velocity
-allEnemies[4] = new Enemy(3,40); // row number, velocity
-allEnemies[5] = new Enemy(0,70); // row number, velocity
-allEnemies[6] = new Enemy(2,64);
+allEnemies[2] = new Enemy(2,32); // rendered in array order
+allEnemies[3] = new Enemy(3,10); // so later bugs are 'over'
+allEnemies[4] = new Enemy(3,40); // .'. faster bug should be
+allEnemies[5] = new Enemy(0,70); // higher in the array than
+allEnemies[6] = new Enemy(2,64); // slower bug on same row
 allEnemies[7] = new Enemy(4,4);
+
+
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
