@@ -1,3 +1,34 @@
+                        ///////
+/////////////////////// UTILS /////////////////
+                      ///////
+
+
+function invertColours() {
+    //var canvas = document.querySelector('canvas');
+    //var ctx = canvas.getContext("2d");
+    var myImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    var data = myImageData.data;
+
+
+    for (var i=0; i<data.length; i+=4) {
+        data[i+0] = 255 - data[i+0]; // red
+        data[i+1] = 255 - data[i+1]; // green
+        data[i+2] = 255 - data[i+2]; // blue
+        data[i+3] = 255; // alpha
+    }
+        ctx.putImageData(myImageData, 0, 0);
+}
+
+var deathHonk = function() {
+    //for (var i = 0; i < 4; i++) {
+    //    timeoutID = window.setTimeout(invertColours, 100);
+
+    //};
+    invertColours();
+    //invertColours();
+
+}
+
                       /////////////////
 ///////////////////// ENEMY-BUG STUFF ////////////////////////////
                     /////////////////
@@ -81,7 +112,8 @@ var Player = function() {
     this.sprite = 'images/char-boy.png';
     this.x = START.x;
     this.y = START.y;
-    this.points = 0;
+    this.score = 0;
+    this.water = 0;
 }
 
 Player.prototype.update = function() {
@@ -103,17 +135,36 @@ Player.prototype.update = function() {
     //console.log('collision= ' + collision);
 
     if(collision) {
+        deathHonk();
         this.x = START.x;
         this.y = START.y;
-        this.points = 0;
+        this.score = 0;
+        this.water = 0;
+    }
+
+    if ((this.y == -9) && (this.water == 0)) {
+        this.score += 500;
+        this.water = 1;
     }
 
 }
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    // score render
+    ctx.font = '40pt Impact';
+    ctx.textAlign = 'left';
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1;
+    ctx.fillStyle = 'black';
+    //console.log('score= ' + this.score);
+    ctx.fillText(this.score, 10,100);
+    ctx.strokeText(this.score, 10, 100);
 }
 Player.prototype.handleInput = function(key) {
     //console.log("Go " + key);
+    // save old position
+    var oldX = this.x;
+    var oldY = this.y;
     // check screen limits of player, then move or not
 
     if (key == "leftward" && this.x > LIMIT.left) { this.x -= BLOCK.width; }
@@ -121,7 +172,10 @@ Player.prototype.handleInput = function(key) {
     if (key == "upward" && this.y > LIMIT.up) { this.y -= BLOCK.height; }
     if (key == "downward" && this.y < LIMIT.down) { this.y += BLOCK.height; }
     //console.log('new X= ' + this.x + ' new Y= ' + this.y)
-    this.points += 5;
+    if (this.x != oldX ||
+        this.y != oldY ) {
+            this.score += 5; // "Survival" points
+    }
 }
 
 // Now instantiate your objects.
