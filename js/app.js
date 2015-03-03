@@ -15,8 +15,10 @@ var Enemy = function(row, speed) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
+    this.row = row;
     this.x = -BLOCK.width; // off-screen start position for bugs
     this.y = BUG_OFFSET + BLOCK.height * row; // assign row to y; never changes
+
     this.speed = speed;
 }
 
@@ -68,6 +70,10 @@ var START = {
     'y' : 406
 }
 
+var P_ROWS = [74,157,240,323,406];
+
+var BUG_BITE = 70;
+
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
@@ -75,10 +81,32 @@ var Player = function() {
     this.sprite = 'images/char-boy.png';
     this.x = START.x;
     this.y = START.y;
+    this.points = 0;
 }
 
 Player.prototype.update = function() {
     // want to check for collision/death; picking up gems
+    var playerRow = P_ROWS.indexOf(this.y);
+    var playerPos = this.x;
+    //console.log( 'p.row = ' + playerRow);
+    var collision = 0;
+
+    allEnemies.forEach(function(enemy) {
+            //console.log('e r ' + enemy.row);
+            if( (enemy.row == playerRow) &&
+                (enemy.x < playerPos) &&
+                (playerPos - enemy.x <= BUG_BITE) ) {
+                    collision=1;
+            };
+         });
+
+    //console.log('collision= ' + collision);
+
+    if(collision) {
+        this.x = START.x;
+        this.y = START.y;
+        this.points = 0;
+    }
 
 }
 Player.prototype.render = function() {
@@ -93,6 +121,7 @@ Player.prototype.handleInput = function(key) {
     if (key == "upward" && this.y > LIMIT.up) { this.y -= BLOCK.height; }
     if (key == "downward" && this.y < LIMIT.down) { this.y += BLOCK.height; }
     //console.log('new X= ' + this.x + ' new Y= ' + this.y)
+    this.points += 5;
 }
 
 // Now instantiate your objects.
