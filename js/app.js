@@ -1,6 +1,15 @@
                         ///////
-/////////////////////// UTILS /////////////////
+/////////////////////// GAME /////////////////
                       ///////
+
+
+// TODO - create Game object
+// TODO - store info about state of game
+// TODO - and flags for levels, accelerant factor, etc
+
+
+// TODO - audio???
+
 
 // this is not working - inverts only the canvas bg
 
@@ -37,6 +46,7 @@ var deathHonk = function() {
 ///////////////////// ENEMY-BUG STUFF ////////////////////////////
                     /////////////////
 
+// TODO - ramp-up velocity
 
 var BLOCK = {width : 101, height : 83};
 var BUG_OFFSET = 60;
@@ -127,11 +137,12 @@ Player.prototype.update = function() {
     //console.log( 'p.row = ' + playerRow);
     var collision = 0;
 
+    // collision test
     allEnemies.forEach(function(enemy) {
             //console.log('e r ' + enemy.row);
-            if( (enemy.row == playerRow) &&
-                (enemy.x < playerPos) &&
-                (playerPos - enemy.x <= BUG_BITE) ) {
+            if( (enemy.row == playerRow) &&             // test first eliminates bugs off-row
+                (enemy.x < playerPos) &&                // then checks position
+                (playerPos - enemy.x <= BUG_BITE) ) {   // and proximity
                     collision=1;
             };
          });
