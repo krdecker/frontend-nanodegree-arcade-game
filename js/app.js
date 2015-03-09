@@ -48,6 +48,8 @@ var deathHonk = function() {
 
 // TODO - ramp-up velocity
 
+var accelerant = 0; //increase with score
+
 var BLOCK = {width : 101, height : 83};
 var BUG_OFFSET = 60;
 
@@ -74,7 +76,9 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
 
-    this.x < 500 ? this.x += this.speed * dt : this.x = -BLOCK.width;
+    // accelerant will be increased as player accumulates points
+
+    this.x < 500 ? this.x += (this.speed + accelerant) * dt : this.x = -BLOCK.width;
 }
 
 // Draw the enemy on the screen, required method for game
@@ -155,16 +159,19 @@ Player.prototype.update = function() {
         this.y = START.y;
         this.score = 0;
         this.wet = 0;
+        accelerant = 0;
     }
 
     if ((this.y == -9) && (this.wet == 0)) {
-        this.score += 500;
+        this.score += 150;
         this.wet = 1;
     }
 
     if (this.wet) {
-        console.log("will now display prizes");
+        //console.log("will now display prizes");
     }
+
+    if ((this.score / 5) > accelerant) { accelerant = this.score / 5;}
 
 }
 Player.prototype.render = function() {
@@ -203,13 +210,24 @@ Player.prototype.handleInput = function(key) {
 
 // TODO - make prize objects and their methods
 // TODO - then implement collection by player
-// gems will all appear after first dive into water
+// gems will all appear after first dive into water,
+// i.e., player is 'wet'
 // when all gems are collected (or a certain number of points
 // achieved) the key appears - collect the key and return it
 // to the water for the WIN!
 
+// var prizePix = [
+//     "images/Gem\ Blue.png",
+//     "images/Gem\ Green.png",
+//     "images/Gem\ Orange.png",
+//     "images/Key.png"];
 
-var Prize = function(){}
+var Prize = function(sprite,x,y) {
+    this.sprite = sprite;
+    this.x = x;
+    this.y = y;
+    this.collected = False;
+}
 Prize.prototype.update = function() {}
 Prize.prototype.render = function() {}
 
@@ -241,12 +259,23 @@ allEnemies[7] = new Enemy(4,4);
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function(e) {
-    var allowedKeys = {
+    var allowedKeys1 = {
         37: 'leftward',
         38: 'upward',
         39: 'rightward',
         40: 'downward'
     };
+    //console.log(e.keyCode);
 
-    player1.handleInput(allowedKeys[e.keyCode]);
+    player1.handleInput(allowedKeys1[e.keyCode]);
 });
+
+// for second player, add 'AWSD' keys
+// var allowedKeys2 = {
+//     65: 'leftward', // 'a' key
+//     87: 'upward', // 'w' key
+//     68: 'rightward', // 'd' key
+//     83: 'downward' // 's' key
+// }
+
+// if (e.keyCode < 41) //etc.

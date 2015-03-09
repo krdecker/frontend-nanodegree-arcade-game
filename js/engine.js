@@ -79,6 +79,7 @@ var Engine = (function(global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
+        //console.log(dt);
         updateEntities(dt);
         // checkCollisions();
     }
