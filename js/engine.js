@@ -92,15 +92,18 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
+        // added this to update the Prize objects - krd
+        //if (prizeLevel) {
+            allPrizes.forEach(function(prize) {
+                prize.update();
+            });
+        //}
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
 
         player1.update();
 
-        allPrizes.forEach(function(prize) {
-            prize.update();
-        });
     }
 
     /* This function initially draws the "game level", it will then call
@@ -154,15 +157,20 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
+
+        //added this to render the Prizes - krd
+        if (prizeLevel) {
+            allPrizes.forEach(function(prize) {
+                prize.render();
+            });
+        }
+
         allEnemies.forEach(function(enemy) {
             enemy.render();
         });
 
         player1.render();
 
-        allPrizes.forEach(function(prize) {
-            prize.render();
-        });
     }
 
     /* This function does nothing but it could have been a good place to
@@ -177,12 +185,18 @@ var Engine = (function(global) {
      * draw our game level. Then set init as the callback method, so that when
      * all of these images are properly loaded our game will start.
      */
+     // added prize pix to this list - krd
     Resources.load([
         'images/stone-block.png',
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png' ,
+        "images/Gem\ Blue.png",
+        "images/Gem\ Green.png",
+        "images/Gem\ Orange.png",
+        "images/Key.png",
+        "images/Heart.png"
     ]);
     Resources.onReady(init);
 
