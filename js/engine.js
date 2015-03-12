@@ -33,6 +33,7 @@ var Engine = (function(global) {
      * and handles properly calling the update and render methods.
      */
     function main() {
+        if (won) { reset(); }
         /* Get our time delta information which is required if your game
          * requires smooth animation. Because everyone's computer processes
          * instructions at different speeds we need a constant value that
@@ -64,7 +65,7 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
-        reset();
+        //reset();
         lastTime = Date.now();
         main();
     }
@@ -179,6 +180,14 @@ var Engine = (function(global) {
      */
     function reset() {
         // noop
+        console.log("You've WON!");
+        won = false;
+        allEnemies.forEach(function(enemy) {
+            enemy.reset();
+        });
+
+        player1.reset();
+
     }
 
     /* Go ahead and load all of the images we know we're going to need to

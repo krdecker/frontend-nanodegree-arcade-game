@@ -15,6 +15,7 @@
 // TODO - ramp-up velocity
 
 var accelerant = 0; //increase with score
+var skill = 1;
 
 var BLOCK = {width : 101, height : 83};
 
@@ -121,6 +122,8 @@ Enemy.prototype.update = function(dt) {
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
+
+Enemy.prototype.reset = function() {}
 
                       //////////////
 ///////////////////// PLAYER STUFF ////////////////////////////
@@ -244,16 +247,14 @@ Player.prototype.update = function() {
         })) {
                 prizeLevel = false;
                 winLevel = true;
-                console.log("Going for the win!");
+                placeWinningPrize();
+                //console.log("Going for the win!");
         };
     };
 
     if (winLevel) {
         console.log("winLevel");
-        //if (prizeLevel) {
-        //    prizeLevel = false;
-        placeWinningPrize();
-        //}
+
         allPrizes.forEach(function(prize) {
             //console.log("px= " + prize.x + "py= " + prize.y);
             //console.log("cx= " + currentX + "cy= " + currentY);
@@ -295,9 +296,11 @@ Player.prototype.handleInput = function(key) {
 
     if (this.x != oldX ||
         this.y != oldY ) {
-            this.score += 5; // "Survival" points
+            this.score += 5; // "Survival" points for movement
     }
 }
+Player.prototype.reset = function() {}
+
 
                        ////////
 ////////////////////// PRIZES //////////////////////////////
@@ -345,11 +348,11 @@ Prize.prototype.render = function() {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var allEnemies = [];
-var player1 = new Player();
-var allPrizes = [];
-var gems = 5;
 
+
+
+
+var allEnemies = [];
 allEnemies[0] = new Enemy(0,16); // row number, velocity
 allEnemies[1] = new Enemy(1,50); // row number, velocity
 allEnemies[2] = new Enemy(2,32); // rendered in array order
@@ -360,6 +363,12 @@ allEnemies[6] = new Enemy(2,64); // slower bug on same row
 allEnemies[7] = new Enemy(4,4);
 
 
+var player1 = new Player();
+
+
+
+var allPrizes = [];
+var gems = 5;
 
 function placeGems() {
     var xarray = shuffle(PLAY_COLS.slice());
@@ -374,19 +383,12 @@ function placeGems() {
 
 function placeWinningPrize() {
     allPrizes = []; // clear prize array
-    allPrizes[0] = new Prize( prizePix[3], 99, 406);
+    var x = shuffle(PLAY_COLS.slice())[0]; // put Prize on a random x
+    var y = PLAY_ROWS.slice().pop(); // but always on the bottom of grass
+    allPrizes[0] = new Prize( prizePix[3], x, y);
 }
 
-/*
-function checkCollection() {
-    var result = true;
-    allPrizes.forEach(function(prize) {
-            if (prize.collected == false) { result = false; }
-    });
-    console.log("in checkColl: " + result);
-    return result;
-}
-*/
+
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
