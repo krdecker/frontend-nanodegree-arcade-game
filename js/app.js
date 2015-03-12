@@ -21,6 +21,8 @@ var BLOCK = {width : 101, height : 83};
 var prizeLevel = false; //  flag to indicate player is on Prize level
 var winLevel = false; // flag to indicate player is on Win level
 
+var won = false;
+
 // from MDN:
 // Returns a random integer between min (included) and max (excluded)
 // Using Math.round() will give you a non-uniform distribution!
@@ -230,7 +232,7 @@ Player.prototype.update = function() {
             //console.log("px= " + prize.x + "py= " + prize.y);
             //console.log("cx= " + currentX + "cy= " + currentY);
             if (playerPosX == prize.x && playerPosY == prize.y) {
-                console.log("bingo");
+                //console.log("bingo");
                 prize.collected = true;
                 //gotPrize = true;
             }
@@ -246,20 +248,22 @@ Player.prototype.update = function() {
         };
     };
 
-    //if (winLevel) { console.log("winLevel"); }
-    //     if (prizeLevel) {
-    //         prizeLevel = false;
-    //         placeWin();
-    //     }
-    //     allPrizes.forEach(function(prize) {
-    //         //console.log("px= " + prize.x + "py= " + prize.y);
-    //         //console.log("cx= " + currentX + "cy= " + currentY);
-    //         if (playerPosX == prize.x && playerPosY == prize.y) {
-    //             console.log("WIN!");
-    //             prize.collected = true;
-    //         }
-    //     });
-    // }
+    if (winLevel) {
+        console.log("winLevel");
+        //if (prizeLevel) {
+        //    prizeLevel = false;
+        placeWinningPrize();
+        //}
+        allPrizes.forEach(function(prize) {
+            //console.log("px= " + prize.x + "py= " + prize.y);
+            //console.log("cx= " + currentX + "cy= " + currentY);
+            if (playerPosX == prize.x && playerPosY == prize.y) {
+                console.log("WIN!");
+                prize.collected = true;
+                won = true;
+            }
+        });
+    }
 } // .update()
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -324,7 +328,7 @@ var Prize = function(sprite,x,y) {
     this.collected = false;
 }
 Prize.prototype.update = function() {
-    if (! prizeLevel) { this.collected = false; }
+    if (! (prizeLevel || winLevel)) { this.collected = false; }
 }
 Prize.prototype.render = function() {
     if (!this.collected) {
@@ -368,7 +372,7 @@ function placeGems() {
 
 
 
-function placeWin() {
+function placeWinningPrize() {
     allPrizes = []; // clear prize array
     allPrizes[0] = new Prize( prizePix[3], 99, 406);
 }

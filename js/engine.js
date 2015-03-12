@@ -159,7 +159,7 @@ var Engine = (function(global) {
          */
 
         //added this to render the Prizes - krd
-        if (prizeLevel) {
+        if (prizeLevel || winLevel) {
             allPrizes.forEach(function(prize) {
                 prize.render();
             });
