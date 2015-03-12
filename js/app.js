@@ -28,6 +28,25 @@ function randomlyChoose(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
+// knuth shuffle algorithm, from <stack overflow>
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex ;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
 
 // this is not working - inverts only the canvas bg
 
@@ -135,8 +154,8 @@ var START = {
 }
 
 
-var PLAY_COLS = [-2,99,200,301,402]; // x values of player columns
-var PLAY_ROWS = [74,157,240,323,406]; // y values of player rows
+var PLAY_COLS = [-2,99,200,301,402]; // x values of play columns
+var PLAY_ROWS = [74,157,240,323,406]; // y values of play rows
 
 
 var BUG_BITE = 70; // sets tolerance for bug approaching player
@@ -202,7 +221,7 @@ Player.prototype.update = function() {
         placeGems();
     }
 
-    if ((this.score / 5) > accelerant) { accelerant = this.score / 5; }
+    if ((this.score / 5) > accelerant) { accelerant = this.score / 5; };
 
     // check for prize collection
     if (prizeLevel) {
@@ -218,7 +237,14 @@ Player.prototype.update = function() {
         });
         //if (gotPrize) { this.prizes += 1; }
         //winLevel = checkCollection();
-    }
+        if (allPrizes.every(function(prize){
+            return prize.collected;
+        })) {
+                prizeLevel = false;
+                winLevel = true;
+                console.log("Going for the win!");
+        };
+    };
 
     //if (winLevel) { console.log("winLevel"); }
     //     if (prizeLevel) {
@@ -318,7 +344,7 @@ Prize.prototype.render = function() {
 var allEnemies = [];
 var player1 = new Player();
 var allPrizes = [];
-var gems = 6;
+var gems = 5;
 
 allEnemies[0] = new Enemy(0,16); // row number, velocity
 allEnemies[1] = new Enemy(1,50); // row number, velocity
@@ -329,29 +355,34 @@ allEnemies[5] = new Enemy(0,70); // higher in the array than
 allEnemies[6] = new Enemy(2,64); // slower bug on same row
 allEnemies[7] = new Enemy(4,4);
 
+
+
 function placeGems() {
+    var xarray = shuffle(PLAY_COLS.slice());
+    var yarray = shuffle(PLAY_ROWS.slice());
+
     for(var i=0;i<gems;i++) {
-        allPrizes[i] = new Prize(
-                                    prizePix[randomlyChoose(1,4)-1],
-                                    PLAY_COLS[randomlyChoose(1,6)],
-                                    PLAY_ROWS[randomlyChoose(1,6)]
-                                );
+        allPrizes[i] = new Prize( prizePix[randomlyChoose(0,3)],xarray[i],yarray[i]);
     };
 }
+
+
 
 function placeWin() {
     allPrizes = []; // clear prize array
     allPrizes[0] = new Prize( prizePix[3], 99, 406);
 }
 
+/*
 function checkCollection() {
     var result = true;
     allPrizes.forEach(function(prize) {
             if (prize.collected == false) { result = false; }
     });
+    console.log("in checkColl: " + result);
     return result;
 }
-
+*/
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
