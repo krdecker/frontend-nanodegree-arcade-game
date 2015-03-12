@@ -3,6 +3,9 @@
                       ///////
 
 
+// TODO - display skill on upper right corner
+// TODO - increase score for each gem collected
+
 // TODO - create Game object
 // TODO - store info about state of game
 // TODO - and flags for levels, accelerant factor, etc
@@ -114,8 +117,9 @@ Enemy.prototype.update = function(dt) {
     // all computers.
 
     // accelerant will be increased as player accumulates points
+    // skill bumps up after a win
 
-    this.x < 500 ? this.x += (this.speed + accelerant) * dt : this.x = -BLOCK.width;
+    this.x < 500 ? this.x += (this.speed + accelerant * skill) * dt : this.x = -BLOCK.width;
 }
 
 // Draw the enemy on the screen, required method for game
@@ -123,7 +127,9 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
-Enemy.prototype.reset = function() {}
+Enemy.prototype.reset = function() {
+        this.x = -BLOCK.width; // off-screen start position for bugs
+}
 
                       //////////////
 ///////////////////// PLAYER STUFF ////////////////////////////
@@ -179,8 +185,7 @@ var Player = function() {
     this.score = 0;
     this.prizes = 0;
     this.wet = false;
-    //this.has2Gems = false;
-}
+};
 
 Player.prototype.update = function() {
     // want to check for collision/death; collection of prizes
@@ -189,31 +194,14 @@ Player.prototype.update = function() {
     var playerPosY = this.y;
 
 
-    var collision = 0;
-
-    // collision test
-    allEnemies.forEach(function(enemy) {
-            //console.log('e r ' + enemy.row);
-            if( (enemy.row == playerRow) &&             // test first eliminates bugs off-row
-                (enemy.x < playerPosX) &&                // then checks position
-                (playerPosX - enemy.x <= BUG_BITE) ) {   // and proximity
-                    collision=1;
-            };
-         });
+    //var collision = 0;
 
 
-    if(collision) {
-    //    deathHonk(); // not working
-        this.x = START.x;
-        this.y = START.y;
-        this.score = 0;
-        //this.prizes = 0;
-        this.wet = false;
-        accelerant = 0;
-        prizeLevel = false;
-        winLevel = false;
-        allPrizes = []; // so prizes can be re-placed after death
 
+
+    if(this.hasCollided()) {
+        skill = 1;
+        this.reset();
     }
 
     //console.log("wet? " + this.wet);
@@ -228,9 +216,10 @@ Player.prototype.update = function() {
 
     if ((this.score / 5) > accelerant) { accelerant = this.score / 5; };
 
+    //var gotPrize = false;
     // check for prize collection
     if (prizeLevel) {
-        //var gotPrize = false;
+
         allPrizes.forEach(function(prize) {
             //console.log("px= " + prize.x + "py= " + prize.y);
             //console.log("cx= " + currentX + "cy= " + currentY);
@@ -240,32 +229,35 @@ Player.prototype.update = function() {
                 //gotPrize = true;
             }
         });
-        //if (gotPrize) { this.prizes += 1; }
+        // if (gotPrize) {
+        //     this.score += 100;
+        //     gotPrize = false;
+        // }
         //winLevel = checkCollection();
         if (allPrizes.every(function(prize){
             return prize.collected;
         })) {
                 prizeLevel = false;
                 winLevel = true;
-                placeWinningPrize();
+                placeWinningPrize(playerPosX,playerPosY);
                 //console.log("Going for the win!");
         };
     };
 
     if (winLevel) {
-        console.log("winLevel");
+        //console.log("winLevel");
 
         allPrizes.forEach(function(prize) {
             //console.log("px= " + prize.x + "py= " + prize.y);
             //console.log("cx= " + currentX + "cy= " + currentY);
             if (playerPosX == prize.x && playerPosY == prize.y) {
-                console.log("WIN!");
+               //console.log("WIN!");
                 prize.collected = true;
                 won = true;
             }
         });
     }
-} // .update()
+}; // .update()
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 
@@ -278,6 +270,17 @@ Player.prototype.render = function() {
     //console.log('score= ' + this.score);
     ctx.fillText(this.score, 10,100);
     ctx.strokeText(this.score, 10, 100);
+
+    // skill render
+    ctx.font = '40pt Impact';
+    ctx.textAlign = 'right';
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1;
+    ctx.fillStyle = 'black';
+    //console.log('skill= ' + skill);
+    ctx.fillText(skill, 432, 100);
+    ctx.strokeText(skill, 432, 100);
+
 }
 Player.prototype.handleInput = function(key) {
     //console.log("Go " + key);
@@ -299,7 +302,34 @@ Player.prototype.handleInput = function(key) {
             this.score += 5; // "Survival" points for movement
     }
 }
-Player.prototype.reset = function() {}
+Player.prototype.hasCollided = function() {
+    var playerRow = PLAY_ROWS.indexOf(this.y);
+    var playerPosX = this.x;
+    var playerPosY = this.y;
+    var collision = 0;
+ // collision test
+    allEnemies.forEach(function(enemy) {
+            //console.log('e r ' + enemy.row);
+            if( (enemy.row == playerRow) &&             // test first eliminates bugs off-row
+                (enemy.x < playerPosX) &&                // then checks position
+                (playerPosX - enemy.x <= BUG_BITE) ) {   // and proximity
+                    collision = 1;
+            };
+         });
+    if (collision) return true;
+}
+Player.prototype.reset = function() {
+        this.x = START.x;
+        this.y = START.y;
+        this.score = 0;
+        //this.prizes = 0;
+        this.wet = false;
+        accelerant = 0;
+        prizeLevel = false;
+        winLevel = false;
+        won = false;
+        allPrizes = []; // so prizes can be re-placed after death
+}
 
 
                        ////////
@@ -349,10 +379,8 @@ Prize.prototype.render = function() {
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 
-
-
-
 var allEnemies = [];
+
 allEnemies[0] = new Enemy(0,16); // row number, velocity
 allEnemies[1] = new Enemy(1,50); // row number, velocity
 allEnemies[2] = new Enemy(2,32); // rendered in array order
@@ -381,10 +409,31 @@ function placeGems() {
 
 
 
-function placeWinningPrize() {
+// function placeWinningPrize() {
+//     allPrizes = []; // clear prize array
+
+//     var x = shuffle(PLAY_COLS.slice())[0]; // put Prize on a random x
+//     var y = PLAY_ROWS.slice().pop(); // but always on the bottom of grass
+
+//     allPrizes[0] = new Prize( prizePix[3], x, y);
+// }
+
+
+function placeWinningPrize(pX,pY) {
     allPrizes = []; // clear prize array
+
+    var y = PLAY_ROWS.slice().pop(); // always on the bottom of grass
+
     var x = shuffle(PLAY_COLS.slice())[0]; // put Prize on a random x
-    var y = PLAY_ROWS.slice().pop(); // but always on the bottom of grass
+
+    // make sure Winning Prize does not appear at Player's position
+    if (y==pY) {
+        while (x==pX){
+            x = shuffle(PLAY_COLS.slice())[0];
+        }
+    }
+
+
     allPrizes[0] = new Prize( prizePix[3], x, y);
 }
 

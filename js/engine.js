@@ -180,14 +180,19 @@ var Engine = (function(global) {
      */
     function reset() {
         // noop
-        console.log("You've WON!");
+        //console.log("You've WON!");
         won = false;
+
         allEnemies.forEach(function(enemy) {
             enemy.reset();
         });
 
         player1.reset();
 
+        skill += 1;
+
+
+        main();
     }
 
     /* Go ahead and load all of the images we know we're going to need to
