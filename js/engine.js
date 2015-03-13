@@ -33,7 +33,9 @@ var Engine = (function(global) {
      * and handles properly calling the update and render methods.
      */
     function main() {
-        if (won) { reset(); }
+        // check for level win
+        if (won) { reset(); };
+
         /* Get our time delta information which is required if your game
          * requires smooth animation. Because everyone's computer processes
          * instructions at different speeds we need a constant value that
@@ -94,11 +96,14 @@ var Engine = (function(global) {
      */
     function updateEntities(dt) {
         // added this to update the Prize objects - krd
+        // not currently in use as Prizes do not move or change
+        // but would be useful to animate the gems etc.
         //if (prizeLevel) {
-            allPrizes.forEach(function(prize) {
-                prize.update();
-            });
+        //    allPrizes.forEach(function(prize) {
+        //        prize.update();
+        //    });
         //}
+
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
@@ -174,17 +179,28 @@ var Engine = (function(global) {
 
     }
 
+    // NOPE:
     /* This function does nothing but it could have been a good place to
      * handle game reset states - maybe a new game menu or a game over screen
      * those sorts of things. It's only called once by the init() method.
      */
+
+    // I've used this function to bump the game level
+    // when the player has won their current level
+    // it is called conditionally in main()
+    // if the player has won
+    // it does its reset()s on entities
+    // bumps the level up a notch
+    //then restarts by calling main()
+    // with the won flag reset to false
     function reset() {
-        // noop
-        //console.log("You've WON!");
+
+
         won = false;
 
         allEnemies.forEach(function(enemy) {
-            enemy.reset();
+            enemy.reset(); // this is currently 'noop' cuz I preferred to maintain
+                            // bug continuity across the levels
         });
 
         player1.reset();

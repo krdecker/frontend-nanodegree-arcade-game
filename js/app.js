@@ -161,9 +161,7 @@ var PLAY_ROWS = [74,157,240,323,406]; // y values of play rows
 
 var BUG_BITE = 70; // sets tolerance for bug approaching player
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
+
 var Player = function() {
     this.sprite = 'images/char-boy.png';
 
@@ -173,7 +171,6 @@ var Player = function() {
 
     // player's current game-state
     this.score = 0;
-    this.prizes = 0;
     this.wet = false;
 };
 
@@ -189,10 +186,7 @@ Player.prototype.update = function() {
         this.reset();
     }
 
-    //console.log("wet? " + this.wet);
-    //console.log("prizeLevel? " + prizeLevel);
-
-    // first time ('dry') player gets to water
+    // first time ('dry') player gets to water:
     // triggers prize level
     if ((this.y == -9) && (this.wet == false)) {
         this.score += wetbump; // score bump is set at top of file
@@ -203,15 +197,12 @@ Player.prototype.update = function() {
 
     if ((this.score / 5) > accelerant) { accelerant = this.score / 5; };
 
-    //var gotPrize = false;
+
     // check for prize collection
     if (prizeLevel) {
         var player = this;
         allPrizes.forEach(function(prize) {
-            //console.log("px= " + prize.x + "py= " + prize.y);
-            //console.log("cx= " + currentX + "cy= " + currentY);
             if (playerPosX == prize.x && playerPosY == prize.y) {
-                //console.log("bingo");
                 if (! prize.collected) {
                     prize.collected = true;
                     player.score += gembump; // bump score for each gem collected
@@ -225,25 +216,20 @@ Player.prototype.update = function() {
                 prizeLevel = false;
                 winLevel = true;
                 placeWinningPrize(playerPosX,playerPosY);
-                //console.log("Going for the win!");
         };
     };
 
     if (winLevel) {
-        //console.log("winLevel");
         // win level re-uses the allPrizes array, with a single element: the key
         // this could be expanded so win level has more than one prize
         allPrizes.forEach(function(prize) {
-            //console.log("px= " + prize.x + "py= " + prize.y);
-            //console.log("cx= " + currentX + "cy= " + currentY);
             if (playerPosX == prize.x && playerPosY == prize.y) {
-               //console.log("WIN!");
                 prize.collected = true;
                 won = true;
             }
         });
     }
-}; // .update()
+}; // end of .update()
 
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -254,7 +240,6 @@ Player.prototype.render = function() {
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 1;
     ctx.fillStyle = 'black';
-    //console.log('score= ' + this.score);
     ctx.fillText(this.score, 10,100);
     ctx.strokeText(this.score, 10, 100);
 
@@ -264,14 +249,12 @@ Player.prototype.render = function() {
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 1;
     ctx.fillStyle = 'black';
-    //console.log('skill= ' + skill);
     ctx.fillText(skill, 432, 100);
     ctx.strokeText(skill, 432, 100);
 
 }
 
 Player.prototype.handleInput = function(key) {
-    //console.log("Go " + key);
 
     // save old position
     var oldX = this.x;
@@ -283,7 +266,6 @@ Player.prototype.handleInput = function(key) {
     if (key == "upward" && this.y > LIMIT.up) { this.y -= BLOCK.height; }
     if (key == "downward" && this.y < LIMIT.down) { this.y += BLOCK.height; }
 
-    //console.log('new X= ' + this.x + ' new Y= ' + this.y)
 
     if (this.x != oldX ||
         this.y != oldY ) {
@@ -298,7 +280,6 @@ Player.prototype.hasCollided = function() {
     var collision = false;
  // collision test
     allEnemies.forEach(function(enemy) {
-            //console.log('e r ' + enemy.row);
             if( (enemy.row == playerRow) &&             // test first eliminates bugs off-row
                 (enemy.x < playerPosX) &&                // then checks position
                 (playerPosX - enemy.x <= BUG_BITE) ) {   // and proximity
@@ -307,11 +288,12 @@ Player.prototype.hasCollided = function() {
          });
     return collision;
 }
+
 Player.prototype.reset = function() {
+    // zero all parameters and put player back at origin
         this.x = START.x;
         this.y = START.y;
         this.score = 0;
-        //this.prizes = 0;
         this.wet = false;
         accelerant = 0;
         prizeLevel = false;
@@ -436,5 +418,5 @@ document.addEventListener('keyup', function(e) {
 
 /*
 Ultimately, the player is meant for Barcelona . . . not the city, the planet.  */
-//var joke = "They got dogs there with no noses.";
+// var joke = "They got dogs there with no noses.";
 
