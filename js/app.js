@@ -1,31 +1,54 @@
-                        ///////
-/////////////////////// GAME /////////////////
-                      ///////
+                        /////////////////////////////////
+/////////////////////// "Ladybug Migration" GAME /////////////////
+                      /////////////////////////////////
 
 
-// TODO - display skill on upper right corner
-// TODO - increase score for each gem collected
+/*
+User Interface philosophy is to minimize verbiage and keep framework light-weight
+and intuitive. Player quickly learns the 'rules' by playing. First major discovery
+being that bugs can be used as stepping-stones; they only 'bite' at their head.
 
-// TODO - create Game object
-// TODO - store info about state of game
-// TODO - and flags for levels, accelerant factor, etc
+Second discovery being that the more you advance, the worse it gets.
 
-
-// TODO - audio???
-
+*/
 
 
-// TODO - ramp-up velocity
+/*
+player begins at centre of bottom row; that row has only one bug, the slowest on the board;
+player gets a small number of 'survival' points for each move;
+player makes their way to the water in the top row; gets a larger number of points
+and causes gems to appear randomly placed in each row; moving to the gem 'collects' it;
+when all gems are collected, the key appears somewhere in the bottom row; collecting the
+key counts a win and player advances to next skill level.
 
+points displayed top-left; skill level (i.e. number of consecutive wins) on top-right.
+
+*/
+
+
+
+// GAME FLAGS:
+
+// ramp-up velocity of the bugs
 var accelerant = 0; //increase with score
-var skill = 1;
+var skill = 1; // increase with each win
+
+// settings (the larger these are, the more difficult the game-play)
+var wetbump = 80; // points awarded for first reaching water
+var gembump = 5; // points awarded for each gem collected
+
+
 
 var BLOCK = {width : 101, height : 83};
 
 var prizeLevel = false; //  flag to indicate player is on Prize level
 var winLevel = false; // flag to indicate player is on Win level
 
-var won = false;
+var won = false; // flag to switch game into the reset modes in engine.js
+
+
+
+// TOOL-BOX FUNCTIONS
 
 // from MDN:
 // Returns a random integer between min (included) and max (excluded)
@@ -54,37 +77,6 @@ function shuffle(array) {
   return array;
 }
 
-// this is not working - inverts only the canvas bg
-
-// probably cuz the block images are cached and re-painted so fast
-// could try inverting them in their cache
-
-// function invertColours() {
-//     //var canvas = document.querySelector('canvas');
-//     //var ctx = canvas.getContext("2d");
-//     var myImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-//     var data = myImageData.data;
-
-
-//     for (var i=0; i<data.length; i+=4) {
-//         data[i+0] = 255 - data[i+0]; // red
-//         data[i+1] = 255 - data[i+1]; // green
-//         data[i+2] = 255 - data[i+2]; // blue
-//         data[i+3] = 255; // alpha
-//     }
-//         ctx.putImageData(myImageData, 0, 0);
-// }
-
-// var deathHonk = function() {
-//     //for (var i = 0; i < 4; i++) {
-//     //    timeoutID = window.setTimeout(invertColours, 100);
-
-//     //};
-//     invertColours();
-//     invertColours();
-
-// }
-
 
 
                       /////////////////
@@ -94,7 +86,7 @@ function shuffle(array) {
 var BUG_OFFSET = 60; // to adjust bug pic on the row
 
 
-// Enemies our player must avoid
+// Enemies our player must avoid - currently, all enemies are ladybugs
 var Enemy = function(row, speed) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
@@ -109,26 +101,29 @@ var Enemy = function(row, speed) {
     this.speed = speed;
 }
 
-// Update the enemy's position, required method for game
+// Update the enemy's position
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
+    // multiply movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
 
-    // accelerant will be increased as player accumulates points
-    // skill bumps up after a win
+    // 'accelerant' addend will be increased as player accumulates points
+    // 'skill' factor bumps up after a win
 
     this.x < 500 ? this.x += (this.speed + accelerant * skill) * dt : this.x = -BLOCK.width;
 }
 
-// Draw the enemy on the screen, required method for game
+// Draw the enemy on the screen
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
 Enemy.prototype.reset = function() {
-        this.x = -BLOCK.width; // off-screen start position for bugs
+    // this was re-starting all bugs off-screen after each win
+    // seems better to keep the bugs on screen and just re-start player
+    // at new level
+        //this.x = -BLOCK.width; // off-screen start position for bugs
 }
 
                       //////////////
@@ -137,21 +132,15 @@ Enemy.prototype.reset = function() {
 
 // TODO - add player points - DONE
 // TODO - add points print out in water - DONE
-// TODO - when get to water gems appear; return to get them for big points
-// TODO - when all gems collected; key appears
-// TODO - pickup key and return to water = WIN!
+// TODO - when get to water gems appear; return to get them -DONE
+// TODO - when all gems collected; key appears - DONE
+// TODO - pickup key = WIN! - DONE
 
-// TODO - add player2 with input from keys ASDW
-
-// var bounds = {
-    //     'ULlimit': {'x':-2,'y':-9},
-    //     'URlimit': {'x':402,'y':-9},
-    //     'LLlimit': {'x':-2,'y':406},
-    //     'LRlimit': {'x':402,'y':406}
-    // }
 
 // Position constants
 
+// this limit table is used in handleInput method
+// to keep player within the bounds of the game-board
 var LIMIT = {
     'left' : -2,
     'right' : 402,
@@ -159,6 +148,7 @@ var LIMIT = {
     'down' : 406
 }
 
+// object defines player's starting position
 var START = {
     'x' : 200,
     'y' : 406
@@ -194,11 +184,6 @@ Player.prototype.update = function() {
     var playerPosY = this.y;
 
 
-    //var collision = 0;
-
-
-
-
     if(this.hasCollided()) {
         skill = 1;
         this.reset();
@@ -207,8 +192,10 @@ Player.prototype.update = function() {
     //console.log("wet? " + this.wet);
     //console.log("prizeLevel? " + prizeLevel);
 
+    // first time ('dry') player gets to water
+    // triggers prize level
     if ((this.y == -9) && (this.wet == false)) {
-        this.score += 150;
+        this.score += wetbump; // score bump is set at top of file
         this.wet = true;
         prizeLevel = true;
         placeGems();
@@ -219,24 +206,22 @@ Player.prototype.update = function() {
     //var gotPrize = false;
     // check for prize collection
     if (prizeLevel) {
-
+        var player = this;
         allPrizes.forEach(function(prize) {
             //console.log("px= " + prize.x + "py= " + prize.y);
             //console.log("cx= " + currentX + "cy= " + currentY);
             if (playerPosX == prize.x && playerPosY == prize.y) {
                 //console.log("bingo");
-                prize.collected = true;
-                //gotPrize = true;
+                if (! prize.collected) {
+                    prize.collected = true;
+                    player.score += gembump; // bump score for each gem collected
+                }
+
             }
         });
-        // if (gotPrize) {
-        //     this.score += 100;
-        //     gotPrize = false;
-        // }
-        //winLevel = checkCollection();
-        if (allPrizes.every(function(prize){
-            return prize.collected;
-        })) {
+
+        //when all prizes are collected, change to win level
+        if (allPrizes.every(function(prize){ return prize.collected; })) {
                 prizeLevel = false;
                 winLevel = true;
                 placeWinningPrize(playerPosX,playerPosY);
@@ -246,7 +231,8 @@ Player.prototype.update = function() {
 
     if (winLevel) {
         //console.log("winLevel");
-
+        // win level re-uses the allPrizes array, with a single element: the key
+        // this could be expanded so win level has more than one prize
         allPrizes.forEach(function(prize) {
             //console.log("px= " + prize.x + "py= " + prize.y);
             //console.log("cx= " + currentX + "cy= " + currentY);
@@ -258,6 +244,7 @@ Player.prototype.update = function() {
         });
     }
 }; // .update()
+
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 
@@ -282,6 +269,7 @@ Player.prototype.render = function() {
     ctx.strokeText(skill, 432, 100);
 
 }
+
 Player.prototype.handleInput = function(key) {
     //console.log("Go " + key);
 
@@ -302,21 +290,22 @@ Player.prototype.handleInput = function(key) {
             this.score += 5; // "Survival" points for movement
     }
 }
+
 Player.prototype.hasCollided = function() {
     var playerRow = PLAY_ROWS.indexOf(this.y);
     var playerPosX = this.x;
     var playerPosY = this.y;
-    var collision = 0;
+    var collision = false;
  // collision test
     allEnemies.forEach(function(enemy) {
             //console.log('e r ' + enemy.row);
             if( (enemy.row == playerRow) &&             // test first eliminates bugs off-row
                 (enemy.x < playerPosX) &&                // then checks position
                 (playerPosX - enemy.x <= BUG_BITE) ) {   // and proximity
-                    collision = 1;
+                    collision = true;
             };
          });
-    if (collision) return true;
+    return collision;
 }
 Player.prototype.reset = function() {
         this.x = START.x;
@@ -336,13 +325,13 @@ Player.prototype.reset = function() {
 ////////////////////// PRIZES //////////////////////////////
                      ////////
 
-// TODO - make prize objects and their methods
-// TODO - then implement collection by player
+// TODO - make prize objects and their methods -DONE
+// TODO - then implement collection by player -DONE
 // gems will all appear after first dive into water,
 // i.e., player is 'wet'
 // TODO : when one of each colour gem is collected (or a certain number of points
 // achieved) the key appears - collect the key and return it
-// to the water for the WIN!
+// to the water for the WIN! -DONE
 
  var prizePix = [
      "images/Gem\ Blue.png",
@@ -353,16 +342,19 @@ Player.prototype.reset = function() {
 ];
 
 
-
 var Prize = function(sprite,x,y) {
     this.sprite = sprite;
     this.x = x;
     this.y = y;
-    this.collected = false;
+    this.fresh = true; // flag to bump score first time gem is hit
+    this.collected = false; // if collected, gem is not rendered
 }
+
 Prize.prototype.update = function() {
-    if (! (prizeLevel || winLevel)) { this.collected = false; }
+    // reset collected status
+    //if (! (prizeLevel || winLevel)) { this.collected = false; }
 }
+
 Prize.prototype.render = function() {
     if (!this.collected) {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -408,17 +400,6 @@ function placeGems() {
 }
 
 
-
-// function placeWinningPrize() {
-//     allPrizes = []; // clear prize array
-
-//     var x = shuffle(PLAY_COLS.slice())[0]; // put Prize on a random x
-//     var y = PLAY_ROWS.slice().pop(); // but always on the bottom of grass
-
-//     allPrizes[0] = new Prize( prizePix[3], x, y);
-// }
-
-
 function placeWinningPrize(pX,pY) {
     allPrizes = []; // clear prize array
 
@@ -426,12 +407,12 @@ function placeWinningPrize(pX,pY) {
 
     var x = shuffle(PLAY_COLS.slice())[0]; // put Prize on a random x
 
-    // make sure Winning Prize does not appear at Player's position
-    if (y==pY) {
-        while (x==pX){
+    // must ensure Winning Prize does not appear at Player's position
+    if (y == pY) {
+        while (x == pX){
             x = shuffle(PLAY_COLS.slice())[0];
-        }
-    }
+        };
+    };
 
 
     allPrizes[0] = new Prize( prizePix[3], x, y);
@@ -453,12 +434,7 @@ document.addEventListener('keyup', function(e) {
     player1.handleInput(allowedKeys1[e.keyCode]);
 });
 
-// for second player, add 'AWSD' keys
-// var allowedKeys2 = {
-//     65: 'leftward', // 'a' key
-//     87: 'upward', // 'w' key
-//     68: 'rightward', // 'd' key
-//     83: 'downward' // 's' key
-// }
+/*
+Ultimately, the player is meant for Barcelona . . . not the city, the planet.  */
+//var joke = "They got dogs there with no noses.";
 
-// if (e.keyCode < 41) //etc.
