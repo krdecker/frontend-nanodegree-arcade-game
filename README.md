@@ -1,8 +1,8 @@
 LADYBUG MIGRATION
+=================
 
+**frontend-nanodegree-arcade-game**
 
-frontend-nanodegree-arcade-game
-===============================
 
 
 Use the Arrow Keys to move your player figure. Avoid the lady-bugs; they bite!
