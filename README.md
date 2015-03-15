@@ -24,9 +24,10 @@ Extensive use was made of MDN JavaScript Reference and stack-overflow discussion
 
 
 files of note:
-app.js - contains definitons of objects and methods for game entities
-engine.js - initialize setup and run animation play-loop
-resources.js - utility to load and store images for fast access
+-------------
+1. *app.js* - contains definitons of objects and methods for game entities
+2. *engine.js* - initialize setup and run animation play-loop
+3. *resources.js* - utility to load and store images for fast access
 
 
 **SPOILER**
