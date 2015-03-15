@@ -62,13 +62,11 @@ var allPrizes = [];
 // Returns a random integer between min (included) and max (excluded)
 // Using Math.round() will give you a non-uniform distribution!
 function randomlyChoose(min, max) {
-    "use strict";
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
 // knuth shuffle algorithm, from <stack overflow>
 function shuffle(array) {
-    "use strict";
     var currentIndex = array.length, temporaryValue, randomIndex;
 
     // While there remain elements to shuffle...
@@ -249,10 +247,6 @@ var Player = function () {
 Player.prototype.update = function () {
     // want to check for collision/death; collection of prizes
 
-    var playerPosX = this.x,
-        playerPosY = this.y,
-        player = this;
-
     if (this.hasCollided()) {
         skill = 1;
         this.reset();
@@ -264,29 +258,29 @@ Player.prototype.update = function () {
         this.score += wetbump; // score bump is set at top of file
         this.wet = true;
         prizeLevel = true;
-        placeGems();
+        placeGems(); // this function sets the prizes on the board
     }
 
+    // increase speed of game with score
     if ((this.score / 5) > accelerant) { accelerant = this.score / 5; }
-
 
     // check for prize collection
     if (prizeLevel) {
-        allPrizes.forEach(function (prize) {
-            if (playerPosX === prize.x && playerPosY === prize.y) {
+        allPrizes.forEach( function (prize) {
+            if (this.x === prize.x && this.y === prize.y) {
                 if (!prize.collected) {
                     prize.collected = true;
-                    player.score += gembump; // bump score for each gem collected
+                    // bump score for each gem collected
+                    this.score += gembump;
                 }
-
             }
-        });
+        }, this);
 
         //when all prizes are collected, change to win level
         if (allPrizes.every(function (prize) { return prize.collected; })) {
             prizeLevel = false;
             winLevel = true;
-            placeWinningPrize(playerPosX, playerPosY);
+            placeWinningPrize(this.x, this.y);
         }
     }
 
@@ -294,11 +288,11 @@ Player.prototype.update = function () {
         // win level re-uses the allPrizes array, with a single element: the key
         // this could be expanded so win level has more than one prize
         allPrizes.forEach(function (prize) {
-            if (playerPosX === prize.x && playerPosY === prize.y) {
+            if (this.x === prize.x && this.y === prize.y) {
                 prize.collected = true;
                 won = true;
             }
-        });
+        }, this);
     }
 }; // end of .update()
 
@@ -342,18 +336,16 @@ Player.prototype.handleInput = function (key) {
 };
 
 Player.prototype.hasCollided = function () {
-    var playerRow = PLAY_ROWS.indexOf(this.y),
-        playerPosX = this.x,
-        collision = false;
+    var collision = false;
 
  // collision test
     allEnemies.forEach(function (enemy) {
-        if ((enemy.row === playerRow) &&             // test first eliminates bugs off-row
-                (enemy.x < playerPosX) &&                // then checks position
-                (playerPosX - enemy.x <= BUG_BITE)) {   // and proximity
+        if ((enemy.row === PLAY_ROWS.indexOf(this.y)) && // eliminate off-row bugs
+                (enemy.x < this.x) &&                // then check position
+                (this.x - enemy.x <= BUG_BITE)) {   // and proximity
             collision = true;
         }
-    });
+    }, this);
     return collision;
 };
 

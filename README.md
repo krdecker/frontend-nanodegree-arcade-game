@@ -23,6 +23,10 @@ Level number displays on the top-right.
 Extensive use was made of MDN JavaScript Reference and stack-overflow discussions in the building of app.js
 
 
+files of note:
+app.js - contains definitons of objects and methods for game entities
+engine.js - initialize setup and run animation play-loop
+resources.js - utility to load and store images for fast access
 
 
 **SPOILER**
