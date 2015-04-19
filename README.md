@@ -22,6 +22,12 @@ Level number displays on the top-right.
 
 Extensive use was made of MDN JavaScript Reference and stack-overflow discussions in the building of app.js
 
+to run the game:
+---------------
+a1. download zip or clone the repository
+a2. open the index.html file in your browser
+OR
+b1. navigate in browser to krdecker.github.io/frontend-nanodegree-arcade-game/
 
 files of note:
 -------------

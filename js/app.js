@@ -372,18 +372,23 @@ Player.prototype.reset = function () {
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 
-allEnemies[0] = new Enemy(0, 16); // row number, velocity
-allEnemies[1] = new Enemy(1, 50); // row number, velocity
-allEnemies[2] = new Enemy(2, 32); // rendered in array order
-allEnemies[3] = new Enemy(3, 10); // so later bugs are 'over'
-allEnemies[4] = new Enemy(3, 40); // .'. faster bug should be
-allEnemies[5] = new Enemy(0, 70); // higher in the array than
-allEnemies[6] = new Enemy(2, 64); // slower bug on same row
-allEnemies[7] = new Enemy(4, 4);
+var enemies = [
+    { row: 0, velocity: 16},
+    { row: 1, velocity: 50},
+    { row: 2, velocity: 32},
+    { row: 3, velocity: 10},
+    { row: 3, velocity: 40},
+    { row: 0, velocity: 70},
+    { row: 2, velocity: 64},
+    { row: 4, velocity: 4}
+];
 
+for (var i=0; i<enemies.length; i++) {
+    allEnemies[i] = new Enemy(enemies[i].row,enemies[i].velocity);
+}
 
+// create player
 var player1 = new Player();
-
 
 
 
